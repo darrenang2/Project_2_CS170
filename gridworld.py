@@ -95,6 +95,27 @@ def value_iteration(env, gamma, max_iterations, logger):
    
 ### Please finish the code below ##############################################
 ###############################################################################
+    theta = 1e-4
+    for i in range(max_iterations):
+        delta = 0
+        # For each state s, perform the value update
+        for s in range(NUM_STATES):
+            v_old = v[s]
+            v[s] = max([sum([p * (r + gamma * v[s_]) for p, s_, r, terminal in TRANSITION_MODEL[s][a]]) for a in range(NUM_ACTIONS)])
+            delta = max(delta, abs(v[s] - v_old))
+        # Visualize the value and policy 
+        logger.log(i + 1, v, pi)
+        # Check convergence
+        if delta < theta:
+            break
+        
+    for s in range(NUM_STATES):
+        # For each state, choose the action that maximizes expected value
+        q_values = []
+        for a in range(NUM_ACTIONS):
+            q = sum([p * (r + gamma * v[s_]) for p, s_, r, terminal in TRANSITION_MODEL[s][a]])
+            q_values.append(q)
+        pi[s] = q_values.index(max(q_values))
 
 ###############################################################################
     return pi
