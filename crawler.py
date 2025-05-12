@@ -80,9 +80,39 @@ def q_learning(env, logger):
 
 ### Please finish the code below ##############################################
 ###############################################################################
+    Q = [[0] * NUM_ACTIONS for _ in range(NUM_STATES)]
+    v = [0] * NUM_STATES
+    pi = [0] * NUM_STATES
+    
+    total_steps = 0
+    episode = 0
 
+    while total_steps < max_iterations:
+        s = env.reset()
+        done = False
+        steps = 0
+        while not done and total_steps < max_iterations:
+            if random.random() < eps:
+                a = random.randint(0, NUM_ACTIONS - 1)
+            else:
+                a = Q[s].index(max(Q[s]))
+            s_, r, done, info = env.step(a)
+            Q[s][a] += alpha * (r + gamma * max(Q[s_]) - Q[s][a])
+            s = s_
+            steps += 1
+            total_steps += 1
+
+        eps = max(0.1, eps * 0.99)
+
+        for s in range(NUM_STATES):
+            v[s] = max(Q[s])
+            pi[s] = Q[s].index(v[s])
+        logger.log(episode + 1, v, pi)
+        episode += 1
 ###############################################################################
-    return None
+    return pi
+###############################################################################
+    
 
 
 if __name__ == "__main__":
